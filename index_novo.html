@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Minha Agenda de Demandas</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #dbe3ee;
+      --primary: #0f766e;
+      --primary-soft: #dff5f1;
+      --danger: #b42318;
+      --danger-soft: #fee4e2;
+      --warning: #b54708;
+      --warning-soft: #fff0c2;
+      --info: #175cd3;
+      --info-soft: #eaf2ff;
+      --success: #067647;
+      --success-soft: #dcfae6;
+      --shadow: 0 8px 24px rgba(16, 24, 40, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    header {
+      background: linear-gradient(135deg, #0f766e, #155e75);
+      color: white;
+      padding: 28px 32px;
+    }
+
+    header h1 {
+      margin: 0 0 6px;
+      font-size: 28px;
+    }
+
+    header p {
+      margin: 0;
+      opacity: .9;
+    }
+
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: -44px;
+      margin-bottom: 24px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .card .label {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+
+    .card .value {
+      font-size: 30px;
+      font-weight: 700;
+    }
+
+    .card small {
+      display: block;
+      margin-top: 6px;
+      color: var(--muted);
+    }
+
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .panel h2 {
+      margin: 0;
+      font-size: 20px;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    select, input, textarea, button {
+      font: inherit;
+    }
+
+    select, input, textarea {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      background: white;
+      color: var(--text);
+    }
+
+    button {
+      border: 0;
+      border-radius: 10px;
+      padding: 10px 14px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-secondary {
+      background: #eef2f7;
+      color: var(--text);
+    }
+
+    .priority-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .priority-item {
+      border-left: 5px solid var(--danger);
+      background: #fff;
+      border-radius: 12px;
+      padding: 14px;
+      border-top: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .priority-item h3 {
+      font-size: 15px;
+      margin: 0 0 8px;
+    }
+
+    .meta {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      display: inline-block;
+      border-radius: 999px;
+      padding: 5px 9px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .urgent { background: var(--danger-soft); color: var(--danger); }
+    .high { background: var(--warning-soft); color: var(--warning); }
+    .medium { background: var(--info-soft); color: var(--info); }
+    .done { background: var(--success-soft); color: var(--success); }
+    .progress { background: var(--primary-soft); color: var(--primary); }
+    .pending { background: #f2f4f7; color: #475467; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 900px;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 12px 10px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    th {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      color: var(--muted);
+      background: #f8fafc;
+    }
+
+    td {
+      font-size: 14px;
+    }
+
+    .task-title {
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .task-desc {
+      color: var(--muted);
+      font-size: 12px;
+      max-width: 420px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .full {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    footer {
+      color: var(--muted);
+      text-align: center;
+      font-size: 12px;
+      padding: 8px 0 24px;
+    }
+
+    @media (max-width: 900px) {
+      .cards, .priority-list, .form-grid {
+        grid-template-columns: 1fr;
+      }
+      .cards { margin-top: 16px; }
+      header { padding: 24px 20px; }
+      .container { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Agenda de Demandas</h1>
+    <p>Organizador pessoal de demandas, prazos e atividades</p>
+  </header>
+
+  <main class="container">
+    <section class="cards">
+      <div class="card">
+        <div class="label">Pendentes</div>
+        <div class="value" id="countPending">0</div>
+        <small>Demandas ainda não iniciadas</small>
+      </div>
+      <div class="card">
+        <div class="label">Em andamento</div>
+        <div class="value" id="countProgress">0</div>
+        <small>Produtos em elaboração ou revisão</small>
+      </div>
+      <div class="card">
+        <div class="label">Finalizadas</div>
+        <div class="value" id="countDone">0</div>
+        <small>Atividades concluídas ou entregues</small>
+      </div>
+      <div class="card">
+        <div class="label">Prioridade urgente</div>
+        <div class="value" id="countUrgent">0</div>
+        <small>Demandas que exigem atenção imediata</small>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header">
+        <div>
+          <h2>Prioridades</h2>
+          <div style="color: var(--muted); font-size: 13px; margin-top: 4px;">
+            Atividades classificadas como urgentes ou de alta prioridade
+          </div>
+        </div>
+      </div>
+      <div class="priority-list" id="priorityList"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header">
+        <h2>Demandas</h2>
+        <div class="toolbar">
+          <input id="searchInput" placeholder="Pesquisar demanda..." />
+          <select id="statusFilter">
+            <option value="">Todos os status</option>
+            <option>Não iniciada</option>
+            <option>Em elaboração</option>
+            <option>Em revisão</option>
+            <option>Aguardando informações</option>
+            <option>Aguardando reagendamento</option>
+            <option>Agendada</option>
+            <option>Finalizada</option>
+            
+          </select>
+          <select id="typeFilter">
+            <option value="">Todos os tipos</option>
+            <option>Parecer técnico</option>
+            <option>Informe de saúde</option>
+            <option>Boletim epidemiológico</option>
+            <option>Resposta técnica</option>
+            <option>Evento técnico</option>
+            <option>Monitoramento</option>
+            <option>Processo / solicitação</option>
+            <option>Reunião técnica</option>
+            <option>Aula / Apresentação</option>
+          </select>
+          <button class="btn-secondary" onclick="exportBackup()">Exportar backup</button>
+          <label class="btn-secondary" style="cursor:pointer; display:inline-flex; align-items:center;">
+            Importar backup
+            <input type="file" accept=".json" onchange="importBackup(event)" style="display:none">
+          </label>
+          <button class="btn-secondary" onclick="resetData()">Restaurar exemplo</button>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Demanda</th>
+              <th>Tipo</th>
+              <th>Prioridade</th>
+              <th>Status</th>
+              <th>Prazo</th>
+              <th>Responsável</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="taskTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header">
+        <h2>Cadastrar nova atividade</h2>
+      </div>
+
+      <form id="taskForm">
+        <div class="form-grid">
+          <div class="full">
+            <label for="title">Título da atividade</label>
+            <input id="title" required style="width:100%" />
+          </div>
+
+          <div>
+            <label for="type">Tipo</label>
+            <select id="type" style="width:100%">
+              <option>Parecer técnico</option>
+              <option>Informe de saúde</option>
+              <option>Boletim epidemiológico</option>
+              <option>Resposta técnica</option>
+              <option>Evento técnico</option>
+              <option>Monitoramento</option>
+              <option>Processo / solicitação</option>
+              <option>Reunião técnica</option>
+              <option>Aula / Apresentação</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="priority">Prioridade</label>
+            <select id="priority" style="width:100%">
+              <option>Urgente</option>
+              <option>Alta</option>
+              <option selected>Média</option>
+              <option>Baixa</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="status">Status</label>
+            <select id="status" style="width:100%">
+              <option>Não iniciada</option>
+              <option>Em elaboração</option>
+              <option>Em revisão</option>
+              <option>Aguardando informações</option>
+              <option>Aguardando reagendamento</option>
+              <option>Agendada</option>
+              <option>Finalizada</option>
+              
+            </select>
+          </div>
+
+          <div>
+            <label for="deadline">Prazo</label>
+            <input type="date" id="deadline" style="width:100%" />
+          </div>
+
+          <div>
+            <label for="responsible">Responsável</label>
+            <input id="responsible" value="Leíse / AASS" style="width:100%" />
+          </div>
+
+          <div>
+            <label for="process">Número do processo</label>
+            <input id="process" style="width:100%" />
+          </div>
+
+          <div class="full">
+            <label for="description">Descrição da atividade</label>
+            <textarea id="description" rows="3" style="width:100%"></textarea>
+          </div>
+
+          <div class="full">
+            <label for="conclusion">Descrição da conclusão</label>
+            <textarea id="conclusion" rows="3" style="width:100%"></textarea>
+          </div>
+
+          <div class="full">
+            <button class="btn-primary" type="submit">Adicionar atividade</button>
+          </div>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <footer>
+    Minha Agenda de Demandas — as atividades permanecem registradas até serem finalizadas.
+  </footer>
+
+  <script>
+    const defaultTasks = [
+      {
+        id: 1,
+        title: "Parecer Técnico – Mortalidade Materna – Manaquiri",
+        type: "Parecer técnico",
+        priority: "Urgente",
+        status: "Não iniciada",
+        deadline: "2026-08-05",
+        responsible: "Leíse / AASS",
+        description: "Elaborar manifestação técnica referente à mortalidade materna no município de Manaquiri.",
+        conclusion: "",
+        process: ""
+      },
+      {
+        id: 2,
+        title: "Parecer Técnico – DDA e doenças relacionadas à água – Água Boa",
+        type: "Parecer técnico",
+        priority: "Urgente",
+        status: "Não iniciada",
+        deadline: "2026-08-05",
+        responsible: "Leíse / AASS",
+        description: "Analisar a situação epidemiológica das doenças relacionadas à água e elaborar parecer técnico.",
+        conclusion: "",
+        process: ""
+      },
+      {
+        id: 3,
+        title: "Informe de Saúde – Estiagem no Amazonas",
+        type: "Informe de saúde",
+        priority: "Urgente",
+        status: "Em elaboração",
+        deadline: "2026-08-05",
+        responsible: "Leíse / CIEGES-AM",
+        description: "Consolidar informações ambientais, epidemiológicas e de resposta à saúde relacionadas à estiagem.",
+        conclusion: "",
+        process: ""
+      },
+      {
+        id: 4,
+        title: "Boletim Epidemiológico – Saúde da Pessoa Idosa",
+        type: "Boletim epidemiológico",
+        priority: "Alta",
+        status: "Não iniciada",
+        deadline: "2026-08-05",
+        responsible: "AASS",
+        description: "Elaborar boletim com o panorama epidemiológico da saúde da pessoa idosa no Amazonas.",
+        conclusion: "",
+        process: ""
+      },
+      {
+        id: 5,
+        title: "Boletim Epidemiológico – Saúde da População Negra",
+        type: "Boletim epidemiológico",
+        priority: "Média",
+        status: "Não iniciada",
+        deadline: "",
+        responsible: "AASS",
+        description: "Elaborar análise epidemiológica da saúde da população negra.",
+        conclusion: "",
+        process: ""
+      },
+      {
+        id: 6,
+        title: "Boletim Epidemiológico – Saúde da População Indígena",
+        type: "Boletim epidemiológico",
+        priority: "Média",
+        status: "Não iniciada",
+        deadline: "",
+        responsible: "AASS",
+        description: "Elaborar panorama dos principais indicadores de saúde da população indígena.",
+        conclusion: "",
+        process: ""
+      },
+      {
+        id: 7,
+        title: "Boletim Epidemiológico – Saúde da População LGBTQIA+",
+        type: "Boletim epidemiológico",
+        priority: "Média",
+        status: "Não iniciada",
+        deadline: "",
+        responsible: "AASS",
+        description: "Elaborar análise epidemiológica da saúde da população LGBTQIA+.",
+        conclusion: "",
+        process: ""
+      },
+      {
+        id: 8,
+        title: "Indicadores do PQA-VS – Avaliação parcial de 2025 e 1º quadrimestre de 2026",
+        type: "Monitoramento",
+        priority: "Alta",
+        status: "Finalizada",
+        deadline: "2026-08-03",
+        responsible: "AASS",
+        description: "Consolidar e analisar os indicadores do PQA-VS.",
+        conclusion: "Indicadores consolidados, analisados e disponibilizados para acompanhamento institucional.",
+        process: ""
+      },
+      {
+        id: 9,
+        title: "Informe de Saúde – 34ª Festa do Cupuaçu – Presidente Figueiredo",
+        type: "Informe de saúde",
+        priority: "Alta",
+        status: "Finalizada",
+        deadline: "2026-08-03",
+        responsible: "AASS",
+        description: "Elaborar informe de saúde para o evento de massa.",
+        conclusion: "Informe elaborado, finalizado e encaminhado.",
+        process: ""
+      },
+      {
+        id: 10,
+        title: "Parecer Técnico – Doenças relacionadas à água – Parintins, 2020 a 2026",
+        type: "Parecer técnico",
+        priority: "Alta",
+        status: "Finalizada",
+        deadline: "2026-07-31",
+        responsible: "AASS / CIEGES-AM",
+        description: "Analisar a situação epidemiológica das doenças relacionadas à água no município de Parintins.",
+        conclusion: "Parecer revisado, finalizado e entregue na sexta-feira.",
+        process: ""
+      },
+      {
+        id: 11,
+        title: "Participação no CGHI Amazon Observatory Convening & GEMINI/FMT Symposium",
+        type: "Evento técnico",
+        priority: "Média",
+        status: "Finalizada",
+        deadline: "2026-08-04",
+        responsible: "Leíse / FVS-RCP",
+        description: "Participar do evento e apresentar experiências institucionais de inteligência epidemiológica.",
+        conclusion: "Participação realizada com apresentação institucional e articulação técnico-científica.",
+        process: ""
+      },
+      {
+        id: 12,
+        title: "Resposta técnica sobre monitoramento epidemiológico do estireno",
+        type: "Resposta técnica",
+        priority: "Urgente",
+        status: "Finalizada",
+        deadline: "2026-07-30",
+        responsible: "CIEGES-AM / AASS",
+        description: "Subsidiar resposta ao Pedido de Acesso à Informação sobre o monitoramento epidemiológico do evento com estireno.",
+        conclusion: "Resposta técnica elaborada e encaminhada com consolidação das informações epidemiológicas.",
+        process: "01.01.017101.028063/2026-95"
+      },
+      {
+        id: 13,
+        title: "Análise de solicitação de acesso a dados – problemas respiratórios / SEMA",
+        type: "Processo / solicitação",
+        priority: "Alta",
+        status: "Não iniciada",
+        deadline: "",
+        responsible: "Leíse / AASS",
+        description: "Analisar a solicitação da Secretaria de Estado do Meio Ambiente (SEMA) de acesso aos dados disponíveis sobre atendimentos por problemas respiratórios registrados nos municípios prioritários do sul do Amazonas e na Região Metropolitana de Manaus, adotando as providências cabíveis.",
+        conclusion: "",
+        process: "01.01.017101.027592/2026-71"
+      },
+      {
+        id: 14,
+        title: "Reunião técnica com a Fiocruz – vigilância e resposta ao calor extremo no SUS",
+        type: "Reunião técnica",
+        priority: "Alta",
+        status: "Aguardando reagendamento",
+        deadline: "2026-09-01",
+        responsible: "Leíse / CIEGES-AM",
+        description: "Participar de visita e reunião técnica vinculada à pesquisa “Implementação e avaliação de estratégias de vigilância, preparação e resposta frente ao calor extremo no Sistema Único de Saúde (SUS)”. A reunião inicialmente prevista para 05/08/2026 será reagendada. Data provisória registrada: 01/09/2026, sujeita à confirmação.",
+        conclusion: "",
+        process: "01.02.017306.004262/2026-47"
+      },
+      {
+        id: 15,
+        title: "Preparação de aula – Inteligência Epidemiológica Aplicada à Estiagem na Amazônia",
+        type: "Aula / Apresentação",
+        priority: "Urgente",
+        status: "Em elaboração",
+        deadline: "2026-08-10",
+        responsible: "Leíse / AASS",
+        description: "Preparar e ministrar a aula “Inteligência Epidemiológica Aplicada à Estiagem na Amazônia”, prevista para 10/08/2026, das 9h às 12h, em modalidade on-line pela Sala de Vídeo UEA Telessaúde. Iniciar imediatamente a organização do conteúdo, roteiro e apresentação.",
+        conclusion: "",
+        process: ""
+      }
+    ];
+
+    let storedTasks = null;
+    try {
+      storedTasks = JSON.parse(localStorage.getItem("agendaAASS"));
+    } catch (e) {
+      storedTasks = null;
+    }
+    const savedTasks = Array.isArray(storedTasks)
+      ? storedTasks.map(task => task.status === "Entregue" ? {...task, status: "Finalizada"} : task)
+      : [];
+    const taskKey = task => task.process || `titulo:${task.title}`;
+    const savedKeys = new Set(savedTasks.map(taskKey));
+    const missingDefaults = defaultTasks.filter(task => !savedKeys.has(taskKey(task)));
+    let tasks = savedTasks.length
+      ? [...savedTasks, ...JSON.parse(JSON.stringify(missingDefaults))]
+      : JSON.parse(JSON.stringify(defaultTasks));
+    try {
+      localStorage.setItem("agendaAASS", JSON.stringify(tasks));
+    } catch (e) {
+      // O sistema continua funcionando mesmo quando o navegador bloqueia o armazenamento local.
+    }
+
+    function priorityClass(priority) {
+      if (priority === "Urgente") return "urgent";
+      if (priority === "Alta") return "high";
+      return "medium";
+    }
+
+    function statusClass(status) {
+      if (status === "Finalizada") return "done";
+      if (status === "Em elaboração" || status === "Em revisão" || status === "Agendada") return "progress";
+      return "pending";
+    }
+
+    function formatDate(date) {
+      if (!date) return "Sem prazo";
+      const [year, month, day] = date.split("-");
+      return `${day}/${month}/${year}`;
+    }
+
+    function save() {
+      localStorage.setItem("agendaAASS", JSON.stringify(tasks));
+    }
+
+    function render() {
+      const search = document.getElementById("searchInput").value.toLowerCase();
+      const status = document.getElementById("statusFilter").value;
+      const type = document.getElementById("typeFilter").value;
+
+      const filtered = tasks.filter(task => {
+        const matchText = task.title.toLowerCase().includes(search) ||
+          task.description.toLowerCase().includes(search) ||
+          (task.process || "").toLowerCase().includes(search);
+        const matchStatus = !status || task.status === status;
+        const matchType = !type || task.type === type;
+        return matchText && matchStatus && matchType;
+      });
+
+      document.getElementById("countPending").textContent =
+        tasks.filter(t => ["Não iniciada", "Aguardando informações", "Aguardando reagendamento"].includes(t.status)).length;
+      document.getElementById("countProgress").textContent =
+        tasks.filter(t => ["Em elaboração", "Em revisão", "Agendada"].includes(t.status)).length;
+      document.getElementById("countDone").textContent =
+        tasks.filter(t => t.status === "Finalizada").length;
+      document.getElementById("countUrgent").textContent =
+        tasks.filter(t => t.priority === "Urgente" && !["Finalizada"].includes(t.status)).length;
+
+      const priorityItems = tasks
+        .filter(t => ["Urgente", "Alta"].includes(t.priority) && !["Finalizada"].includes(t.status))
+        .sort((a, b) => (a.priority === "Urgente" ? -1 : 1))
+        .map(t => `
+          <div class="priority-item">
+            <h3>${t.title}</h3>
+            <div class="meta">
+              <span class="badge ${priorityClass(t.priority)}">${t.priority}</span>
+              <span class="badge ${statusClass(t.status)}">${t.status}</span>
+              <span class="badge pending">Prazo: ${formatDate(t.deadline)}</span>
+            </div>
+          </div>
+        `).join("");
+
+      document.getElementById("priorityList").innerHTML =
+        priorityItems || "<div style='color:var(--muted)'>Nenhuma prioridade pendente.</div>";
+
+      document.getElementById("taskTableBody").innerHTML = filtered.map(task => `
+        <tr>
+          <td>
+            <div class="task-title">${task.title}</div>
+            <div class="task-desc">${task.description || "Sem descrição."}</div>
+            ${task.process ? `<div class="task-desc"><strong>Processo:</strong> ${task.process}</div>` : ""}
+          </td>
+          <td>${task.type}</td>
+          <td><span class="badge ${priorityClass(task.priority)}">${task.priority}</span></td>
+          <td>
+            <select onchange="updateStatus(${task.id}, this.value)">
+              ${["Não iniciada","Em elaboração","Em revisão","Aguardando informações","Aguardando reagendamento","Agendada","Finalizada"]
+                .map(s => `<option ${s === task.status ? "selected" : ""}>${s}</option>`).join("")}
+            </select>
+          </td>
+          <td>${formatDate(task.deadline)}</td>
+          <td>${task.responsible}</td>
+          <td>
+            ${["Finalizada"].includes(task.status)
+              ? `<button class="btn-secondary" onclick="removeTask(${task.id})">Remover</button>`
+              : `<span class="task-desc">Mantida até a conclusão</span>`}
+          </td>
+        </tr>
+      `).join("");
+    }
+
+    function updateStatus(id, value) {
+      tasks = tasks.map(task => task.id === id ? {...task, status: value} : task);
+      save();
+      render();
+    }
+
+    function removeTask(id) {
+      const task = tasks.find(item => item.id === id);
+      if (!task || !["Finalizada"].includes(task.status)) {
+        alert("A demanda só pode ser removida depois de ser marcada como finalizada ou entregue.");
+        return;
+      }
+      if (!confirm("Confirma a remoção desta atividade concluída?")) return;
+      tasks = tasks.filter(item => item.id !== id);
+      save();
+      render();
+    }
+
+    function resetData() {
+      tasks = JSON.parse(JSON.stringify(defaultTasks));
+      save();
+      render();
+    }
+
+    function exportBackup() {
+      const blob = new Blob([JSON.stringify(tasks, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "backup_agenda_aass.json";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function importBackup(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (!Array.isArray(imported)) throw new Error("Formato inválido");
+          tasks = imported;
+          save();
+          render();
+          alert("Backup importado com sucesso.");
+        } catch (error) {
+          alert("Não foi possível importar o arquivo de backup.");
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = "";
+    }
+
+    document.getElementById("taskForm").addEventListener("submit", function(event) {
+      event.preventDefault();
+
+      const newTask = {
+        id: Date.now(),
+        title: document.getElementById("title").value,
+        type: document.getElementById("type").value,
+        priority: document.getElementById("priority").value,
+        status: document.getElementById("status").value,
+        deadline: document.getElementById("deadline").value,
+        responsible: document.getElementById("responsible").value,
+        description: document.getElementById("description").value,
+        conclusion: document.getElementById("conclusion").value,
+        process: document.getElementById("process").value
+      };
+
+      tasks.unshift(newTask);
+      save();
+      this.reset();
+      document.getElementById("responsible").value = "Leíse / AASS";
+      render();
+    });
+
+    document.getElementById("searchInput").addEventListener("input", render);
+    document.getElementById("statusFilter").addEventListener("change", render);
+    document.getElementById("typeFilter").addEventListener("change", render);
+
+    render();
+  </script>
+</body>
+</html>
